@@ -1,19 +1,24 @@
 const tag = "[Controller]";
 
 export default class Controller {
-  constructor(store, { searchFormView, searchResultView }) {
+  constructor(store, { searchFormView, searchResultView, tabView }) {
     this.store = store;
 
     this.searchFormView = searchFormView;
     this.searchResultView = searchResultView;
+    this.tabView = tabView;
 
     this.subscribeViewEvents();
+    this.render();
   }
 
   subscribeViewEvents() {
     this.searchFormView
       .on("@submit", event => this.search(event.detail.value))
       .on("@reset", () => this.reset());
+
+    this.tabView
+      .on("@change", event => this.changeTab(event.detail.value))
   }
 
   search(searchKeyword) {
@@ -29,10 +34,20 @@ export default class Controller {
 
   render() {
     if(this.store.searchResult.length > 0) {
-      this.searchResultView.show(this.store.searchResult);
-      return;
+      return renderSearchResult();
     }
-
+    this.tabView.show(this.store.selectedTab);
     this.searchResultView.hide();
   }
+
+  renderSearchResult() {
+    this.tabView.hide();
+    this.searchResultView.show(this.store.searchResult);
+  }
+
+  changeTab(tab) {
+    this.store.selectedTab = tab;
+    this.render();
+  }
+  
 }
